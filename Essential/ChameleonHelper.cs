@@ -24,33 +24,12 @@ namespace Crewmeleon.Essential
 
             Vector2 pos = Input.mousePosition;
 
-            texture.ReadPixels(new Rect(pos.x, pos.y, 1, 1), 0, 0);
+            texture.ReadPixels(new Rect(pos.x, pos.y, 1, 1), 0, 0, false);
 
-            texture.Apply();
-
-            Color32 color = texture.GetPixel(0, 0);
+            Color32 color = texture.GetPixelData<Color32>(0)[0];
             color.a = byte.MaxValue;
 
             return color;
-        }
-        public static Texture2D ApplyMaterial(Texture2D source, Material material)
-        {
-            RenderTexture rt = new RenderTexture(source.width, source.height, 0, RenderTextureFormat.ARGB32);
-
-            Graphics.Blit(source, rt, material);
-
-            RenderTexture.active = rt;
-
-            Texture2D result = new Texture2D(source.width, source.height, TextureFormat.RGBA32, false);
-
-            result.ReadPixels( new Rect(0, 0, source.width, source.height), 0, 0);
-
-            result.Apply();
-
-            RenderTexture.active = null;
-            rt.Release();
-
-            return result;
         }
     }
 }

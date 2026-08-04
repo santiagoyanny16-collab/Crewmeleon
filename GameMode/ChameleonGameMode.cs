@@ -13,6 +13,7 @@ using FungleAPI.Role.Utilities;
 using FungleAPI.Translation;
 using FungleAPI.Utilities;
 using Il2CppSystem.Xml.Schema;
+using Innersloth.Assets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,6 +35,15 @@ namespace Crewmeleon.GameMode
         public bool CanCount;
         public override GameModeOptions ModeOptions { get; } = new ChameleonModeSettings();
         public override StringNames GameModeName => ChameleonTranslation.ChameleonsText;
+        public override int RequiredPlayerToStart() => 2;
+        public override float CalculateLightRadius(NetworkedPlayerInfo player, bool airship)
+        {
+            if (player.Role.TeamType == RoleTeamTypes.Impostor && HideTime > 0)
+            {
+                return 0;
+            }
+            return base.CalculateLightRadius(player, airship);
+        }
         public override void OnGameStart()
         {
             ProgressTracker = HudManager.Instance.TaskPanel.transform.parent.GetChild(1).GetComponent<ProgressTracker>();
@@ -134,7 +144,7 @@ namespace Crewmeleon.GameMode
         }
         public override bool CanUse(IUsable usable, PlayerControl player)
         {
-            return false;
+            return usable.Is(out Ladder _);
         }
         public override MapOptions GetMapOptions()
         {

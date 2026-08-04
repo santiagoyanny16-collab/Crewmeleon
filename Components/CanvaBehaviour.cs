@@ -6,6 +6,7 @@ using Crewmeleon.Essential;
 using Crewmeleon.GameMode;
 using Crewmeleon.Roles;
 using Crewmeleon.RPC;
+using FungleAPI.Assets;
 using FungleAPI.Components;
 using FungleAPI.Hud;
 using FungleAPI.Networking;
@@ -13,9 +14,11 @@ using FungleAPI.Role;
 using Il2CppSystem;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheOldUs;
 using UnityEngine;
 
 namespace Crewmeleon.Components
@@ -27,6 +30,11 @@ namespace Crewmeleon.Components
         public bool[] Paintable;
         public Color32[] TextureBuffer;
         public SpriteRenderer Canva;
+        public SpriteRenderer PlayerSprite;
+
+        public Color32 VisorColor = Color.gray;
+        public Color32 BodyColor = Color.white;
+        public Color32 BackColor = Color.gray;
 
         public bool OutlineActive;
         public bool ForceShow;
@@ -36,13 +44,62 @@ namespace Crewmeleon.Components
         public float SendTimer;
         public void Start()
         {
-            StartCoroutine(CoInitialize().WrapToIl2Cpp());
+            Canva = new GameObject("Canva")
+            {
+                layer = player.gameObject.layer,
+                transform =
+                {
+                    parent = player.transform,
+                    localPosition = Vector3.zero,
+                    localScale = Vector3.one
+                }
+            }.AddComponent<SpriteRenderer>();
+
+            Texture2D texture = new Texture2D(165, 211, TextureFormat.RGBA32, false);
+
+            TextureBuffer = new Color32[165 * 211];
+            for (int i = 0; i < TextureBuffer.Count(); i++)
+            {
+                TextureBuffer[i] = new Color32(0, 0, 0, 0);
+            }
+
+            texture.SetPixels32(TextureBuffer);
+            texture.Apply();
+
+            Canva.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 200);
+
+            PlayerSprite = new GameObject("PlayerSprite")
+            {
+                layer = player.gameObject.layer,
+                transform =
+                {
+                    parent = Canva.transform,
+                    localPosition = new Vector3(0, 0, 0.00001f),
+                    localScale = Vector3.one
+                }
+            }.AddComponent<SpriteRenderer>();
+
+            PlayerSprite.sprite = AssetLoader.LoadSprite(CrewmeleonPlugin.Plugin.ModAssembly, "Crewmeleon.Assets.DefaultIdle.png", 200, true, false);
+
+            Color[] pixels = PlayerSprite.sprite.texture.GetPixels();
+            Paintable = new bool[pixels.Length];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                Paintable[i] = pixels[i].a > 0;
+            }
+
+            Canva.gameObject.SetActive(false);
         }
         public void Update()
         {
-            if (Canva == null) return;
-
             Canva.gameObject.SetActive(IsCanvaActive());
+
+            if (!Canva.gameObject.activeSelf) return;
+
+            player.MyPhysics.Animations.group.SpriteAnimator.transform.parent.localScale = Canva.gameObject.activeSelf ? Vector3.zero : Vector3.one;
+            PlayerSprite.material = player.MyPhysics.Animations.group.SpriteAnimator.m_nodes.m_spriteRenderer.material;
+            PlayerSprite.flipX = player.cosmetics.FlipX;
             Canva.flipX = player.cosmetics.FlipX;
 
             SendTimer += Time.deltaTime;
@@ -57,7 +114,8 @@ namespace Crewmeleon.Components
 
             if (Canva.gameObject.activeSelf)
             {
-                Canva.material.SetFloat("_Outline", OutlineActive ? 1 : 0);
+                PlayerSprite.material.SetColor("_OutlineColor", Color.white);
+                PlayerSprite.material.SetFloat("_Outline", OutlineActive ? 1 : 0);
             }
 
             if (CanvaPaintBehaviour.Instance == null && player.AmOwner)
@@ -89,66 +147,6 @@ namespace Crewmeleon.Components
                 return false;
             }
             return true;
-        }
-        public System.Collections.IEnumerator CoInitialize()
-        {
-            while (GameData.Instance == null && player.Data == null && player.Data.IsIncomplete)
-            {
-                yield return null;
-            }
-            int colorId = -1;
-            while (colorId < 0)
-            {
-                colorId = player.Data.DefaultOutfit.ColorId;
-                yield return null;
-            }
-
-            Canva = new GameObject("Canva")
-            {
-                layer = player.gameObject.layer,
-                transform =
-                {
-                    parent = player.transform,
-                    localPosition = Vector3.zero,
-                    localScale = Vector3.one
-                }
-            }.AddComponent<SpriteRenderer>();
-
-            Canva.material = new Material(Shader.Find("Sprites/Outline"));
-            Canva.material.SetColor("_OutlineColor", Color.white);
-
-            ResetTexture(colorId);
-
-            Canva.gameObject.SetActive(false);
-        }
-        public void ResetTexture(int colorId)
-        {
-            Material playerM = new Material(Shader.Find("Unlit/PlayerShader"));
-            PlayerMaterial.SetColors(colorId, playerM);
-
-            Sprite original = ChameleonAssets.DefaultIdle;
-
-            Sprite sp = Sprite.Create(
-                ChameleonHelper.ApplyMaterial(original.texture, playerM),
-                original.rect,
-                original.pivot / original.rect.size,
-                original.pixelsPerUnit,
-                0,
-                SpriteMeshType.FullRect
-            );
-
-            Canva.sprite = sp;
-
-            Texture2D texture = sp.texture;
-            Color[] pixels = texture.GetPixels();
-            Paintable = new bool[pixels.Length];
-
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                Paintable[i] = pixels[i].a > 0;
-            }
-
-            TextureBuffer = texture.GetPixels32();
         }
         public bool PaintBrush(Vector2Int center, Color32 color, int brushSize)
         {

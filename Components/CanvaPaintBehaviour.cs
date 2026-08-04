@@ -1,5 +1,7 @@
 ﻿using Crewmeleon.Essential;
+using FungleAPI.Api;
 using FungleAPI.Attributes;
+using FungleAPI.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,9 +48,15 @@ namespace Crewmeleon.Components
             ApplyCursorPreviewScale();
             cursorPreviewObject.SetActive(false);
         }
-
         public void Update()
         {
+            if (ChameleonHelper.PaintState == PaintState.ColorPicker && Input.GetMouseButtonDown(0))
+            {
+                ChameleonHelper.PaintState = PaintState.Painting;
+                ChameleonHelper.BrushColor = ChameleonHelper.GetMousePixelColor();
+                return;
+            }
+
             if (!CanPaint)
             {
                 SetCursorPreviewActive(false);
@@ -80,7 +88,6 @@ namespace Crewmeleon.Components
 
             UpdateCursorPreview();
         }
-
         public void ChangeBrushSize(int delta)
         {
             int newSize = Mathf.Clamp(brushSize + delta, minBrushSize, maxBrushSize);
@@ -91,7 +98,6 @@ namespace Crewmeleon.Components
                 ApplyCursorPreviewScale();
             }
         }
-
         private void PaintAtMousePosition()
         {
             Vector2Int? pixel = MouseToPixelCoord(out _);
@@ -122,9 +128,7 @@ namespace Crewmeleon.Components
                     for (int i = 0; i <= steps; i++)
                     {
                         float t = i / (float)steps;
-                        Vector2Int stepPixel = new Vector2Int(
-                            Mathf.RoundToInt(Mathf.Lerp(lastPaintedPixel.x, current.x, t)),
-                            Mathf.RoundToInt(Mathf.Lerp(lastPaintedPixel.y, current.y, t)));
+                        Vector2Int stepPixel = new Vector2Int(Mathf.RoundToInt(Mathf.Lerp(lastPaintedPixel.x, current.x, t)), Mathf.RoundToInt(Mathf.Lerp(lastPaintedPixel.y, current.y, t)));
 
                         if (Canva.PaintBrush(stepPixel, brushColor, brushSize))
                         {
@@ -144,7 +148,6 @@ namespace Crewmeleon.Components
 
             lastPaintedPixel = current;
         }
-
         private Vector2Int? MouseToPixelCoord(out Vector3 mouseWorld)
         {
             Sprite sprite = Canva.Canva.sprite;
@@ -172,7 +175,6 @@ namespace Crewmeleon.Components
 
             return new Vector2Int(Mathf.Clamp(Mathf.FloorToInt(x * sprite.texture.width), 0, sprite.texture.width - 1), Mathf.Clamp(Mathf.FloorToInt(y * sprite.texture.height), 0, sprite.texture.height - 1));
         }
-
         private void CreateCursorPreview()
         {
             cursorPreviewObject = new GameObject("BrushCursorPreview")
@@ -210,20 +212,14 @@ namespace Crewmeleon.Components
             previewTexture.SetPixels(pixels);
             previewTexture.Apply();
 
-            cursorPreviewRenderer.sprite = Sprite.Create(
-                previewTexture,
-                new Rect(0, 0, diameter, diameter),
-                new Vector2(0.5f, 0.5f),
-                Canva.Canva.sprite.pixelsPerUnit);
+            cursorPreviewRenderer.sprite = Sprite.Create(previewTexture, new Rect(0, 0, diameter, diameter), new Vector2(0.5f, 0.5f), Canva.Canva.sprite.pixelsPerUnit);
         }
-
         private void ApplyCursorPreviewScale()
         {
             float desiredDiameter = brushSize * 2 + 1;
             float scale = desiredDiameter / cursorPreviewBaseDiameter;
             cursorPreviewObject.transform.localScale = new Vector3(scale, scale, 1f);
         }
-
         private void UpdateCursorPreview()
         {
             Vector2Int? pixel = MouseToPixelCoord(out Vector3 mouseWorld);
@@ -243,7 +239,7 @@ namespace Crewmeleon.Components
             mouseWorld.z = transform.position.z - 0.01f;
             cursorPreviewObject.transform.position = mouseWorld;
         }
-
+        
         private void SetCursorPreviewActive(bool active)
         {
             if (cursorPreviewObject != null && cursorPreviewObject.activeSelf != active)

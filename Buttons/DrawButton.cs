@@ -16,12 +16,26 @@ namespace Crewmeleon.Buttons
     [FungleAPI.Attributes.RegisterPriority(0)]
     public class DrawButton : RoleButton<ChameleonRole>
     {
-        public CanvaBehaviour Canva;
+        public SpriteRenderer PlayerSprite;
         public override ButtonLocation Location => ButtonLocation.BottomLeft;
         public override Sprite ButtonSprite => null;
         public override string OverrideText => ChameleonTranslation.Draw.GetString();
         public override Color32 TextOutlineColor => Color.black;
         public override float Cooldown => 1;
+        public override void CreateButton()
+        {
+            base.CreateButton();
+            PlayerSprite = new GameObject("Player")
+            {
+                layer = Button.gameObject.layer,
+                transform =
+                 {
+                    parent = Button.graphic.transform,
+                    localScale = Vector3.one,
+                    localPosition = new Vector3(0, 0, 1)
+                 }
+            }.AddComponent<SpriteRenderer>();
+        }
         public override void OnClick()
         {
             if (ChameleonHelper.PaintState == PaintState.None)
@@ -50,6 +64,8 @@ namespace Crewmeleon.Buttons
             if (CanvaPaintBehaviour.Instance != null)
             {
                 Button.graphic.sprite = CanvaPaintBehaviour.Instance.Canva.Canva.sprite;
+                PlayerSprite.sprite = CanvaPaintBehaviour.Instance.Canva.PlayerSprite.sprite;
+                PlayerSprite.material = CanvaPaintBehaviour.Instance.Canva.PlayerSprite.material;
             }
         }
     }

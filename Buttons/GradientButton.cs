@@ -1,4 +1,5 @@
-﻿using Crewmeleon.Components;
+﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
+using Crewmeleon.Components;
 using Crewmeleon.Essential;
 using Crewmeleon.Roles;
 using FungleAPI.Base.Buttons;
@@ -29,13 +30,31 @@ namespace Crewmeleon.Buttons
 
             Minigame.Instance = GameObject.Instantiate(ShipPrefabLoader.SkeldPrefab.transform.Find("TaskAddConsole").GetComponent<SystemConsole>().MinigamePrefab, Camera.main.transform);
 
+            for (int i = 2; i < Minigame.Instance.transform.GetChildCount(); i++)
+            {
+                Minigame.Instance.transform.GetChild(i).gameObject.SetActive(false);
+            }
+
+            SpriteRenderer display = new GameObject("Display")
+            {
+                layer = 5,
+                transform =
+                {
+                    parent = Minigame.Instance.transform,
+                    localPosition = new Vector3(0, 1.7f, -1),
+                    localScale = new Vector3(2.6f, 2, 1)
+                }
+            }.AddComponent<SpriteRenderer>();
+            display.sprite = ChameleonAssets.ColorDisplay;
+            display.color = ChameleonHelper.BrushColor;
+
             SpriteRenderer spriteRenderer = new GameObject("Gradient")
             {
                 layer = 5,
                 transform =
                 {
                     parent = Minigame.Instance.transform,
-                    localPosition = new Vector3(0, 0, -1)
+                    localPosition = new Vector3(0, -0.6f, -1)
                 }
             }.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = ChameleonAssets.Gradient;
@@ -57,13 +76,20 @@ namespace Crewmeleon.Buttons
             Minigame.Instance.logger.Info("Opening minigame " + base.GetType().Name, null);
             Minigame.Instance.StartCoroutine(Minigame.Instance.CoAnimateOpen());
 
-            Minigame.Instance.gameObject.AddComponent<Updater>().update = delegate
+            System.Collections.IEnumerator CoStart()
             {
-                if (Input.GetMouseButtonDown(0) && boxCollider2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                while (true)
                 {
-                    ChameleonHelper.BrushColor = ChameleonHelper.GetMousePixelColor();
+                    yield return new WaitForEndOfFrame();
+                    if (Input.GetMouseButton(0) && boxCollider2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                    {
+                        ChameleonHelper.BrushColor = ChameleonHelper.GetMousePixelColor();
+                        display.color = ChameleonHelper.BrushColor;
+                    }
                 }
-            };
+            }
+
+            Minigame.Instance.StartCoroutine(CoStart().WrapToIl2Cpp());
         }
     }
 }

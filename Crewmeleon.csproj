@@ -43,6 +43,12 @@
     <Compile Include="System\Runtime\CompilerServices\RefSafetyRulesAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\DefaultIdle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\ColorDisplay.png" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Assets\Languages\pt-br.json" />
   </ItemGroup>
   <ItemGroup>
@@ -69,9 +75,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Assets\ColorDropper.png" />
     <EmbeddedResource Include="Assets\ColorBrush.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\DefaultIdle.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">

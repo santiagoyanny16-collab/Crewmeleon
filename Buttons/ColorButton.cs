@@ -27,12 +27,6 @@ namespace Crewmeleon.Buttons
         {
             base.Update();
             Button.graphic.color = ChameleonHelper.BrushColor;
-
-            if (Input.GetMouseButtonDown(0) && ChameleonHelper.PaintState == PaintState.ColorPicker)
-            {
-                ChameleonHelper.PaintState = PaintState.Painting;
-                ChameleonHelper.BrushColor = ChameleonHelper.GetMousePixelColor();
-            }
         }
     }
 }

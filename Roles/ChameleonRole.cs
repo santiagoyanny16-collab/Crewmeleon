@@ -52,15 +52,11 @@ namespace Crewmeleon.Roles
 
             CanvaBehaviour = Player.GetComponent<CanvaBehaviour>();
 
-            Player.MyPhysics.Animations.group.SpriteAnimator.transform.parent.localScale = Vector3.zero;
-
             Gauge = GameObject.Instantiate<HorizontalGauge>(GetTaskPrefab(TaskTypes.UploadData).MinigamePrefab.TryCast<UploadDataGame>().Gauge, Player.transform);
             Gauge.transform.localPosition = new Vector3(0, -0.7f, 0);
             Gauge.transform.localScale = new Vector3(0.65f, 1, 1);
 
             Gauge.gameObject.SetActive(false);
-
-            CanvaBehaviour.ResetTexture(Player.Data.DefaultOutfit.ColorId);
         }
         public void Update()
         {
@@ -134,8 +130,6 @@ namespace Crewmeleon.Roles
                     ZoomButton.Zoom.gameObject.SetActive(false);
                 }
             }
-
-            Player.MyPhysics.Animations.group.SpriteAnimator.transform.parent.localScale = Vector3.one;
 
             Player.cosmetics.ToggleHat(true);
             Player.cosmetics.TogglePetVisible(true);

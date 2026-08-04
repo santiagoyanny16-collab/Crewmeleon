@@ -20,7 +20,7 @@ namespace Crewmeleon.GameMode
             public static ModdedNumberOption SeekerSpeed = new ModdedNumberOption(ChameleonTranslation.SeekerSpeed, 1.5f, 0.5f, 3, 0.25f, null, false, NumberSuffixes.Multiplier);
             public static ModdedNumberOption SeekersCount = new ModdedNumberOption(ChameleonTranslation.SeekerCount, 2, 1, 10, 1, null, false, NumberSuffixes.None);
             public static ModdedNumberOption Time = new ModdedNumberOption(ChameleonTranslation.GameDuration, 150, 10, 800, 10);
-            public static ModdedNumberOption HideTime = new ModdedNumberOption(ChameleonTranslation.HideTime, 15, 0, 150, 5);
+            public static ModdedNumberOption HideTime = new ModdedNumberOption(ChameleonTranslation.HideTime, 15, 0, 550, 5);
             public static ModdedToggleOption ShowNames = new ModdedToggleOption(ChameleonTranslation.ShowNames, true);
             public static ModdedToggleOption ChatDuringGame = new ModdedToggleOption(ChameleonTranslation.ChatActive, true);
         }

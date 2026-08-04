@@ -49,6 +49,10 @@ namespace Crewmeleon.Components
             else if (!Spectating)
             {
                 Target = player;
+                if (Target != null)
+                {
+                    UpdateText();
+                }
             }
 
             if (player == null || Target == null) return;
