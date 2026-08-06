@@ -55,7 +55,7 @@ namespace Crewmeleon.Components
                 }
             }
 
-            if (player == null || Target == null) return;
+            if (Target == null) return;
 
             if (HudManager.InstanceExists)
             {
@@ -72,6 +72,8 @@ namespace Crewmeleon.Components
 
         public void Next()
         {
+            player.rigidbody2D.velocity = Vector2.zero;
+
             List<PlayerControl> spectable = GetSpectablePlayers();
 
             if (spectable.Count <= 0)
@@ -90,6 +92,8 @@ namespace Crewmeleon.Components
         }
         public void Back()
         {
+            player.rigidbody2D.velocity = Vector2.zero;
+
             List<PlayerControl> spectable = GetSpectablePlayers();
 
             if (spectable.Count <= 0)

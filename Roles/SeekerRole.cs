@@ -4,12 +4,14 @@ using Crewmeleon.Essential;
 using Crewmeleon.GameMode;
 using Crewmeleon.RPC;
 using FungleAPI.Base.Roles;
+using FungleAPI.Extensions;
 using FungleAPI.GameModes;
 using FungleAPI.Networking;
 using FungleAPI.Role;
 using FungleAPI.Role.Utilities;
 using FungleAPI.Teams;
 using FungleAPI.Translation;
+using FungleAPI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,7 @@ namespace Crewmeleon.Roles
 {
     public class SeekerRole : ImpostorBase, ICustomRole
     {
-        public static List<NetworkedPlayerInfo> SafeToKill = new List<NetworkedPlayerInfo>();
+        public static List<byte> SafeToKill = new List<byte>();
 
         public ModdedTeam Team { get; } = ModdedTeamManager.Impostors;
         public StringNames RoleName { get; } = ChameleonTranslation.SeekerName;
@@ -58,9 +60,24 @@ namespace Crewmeleon.Roles
                 }
             }
         };
-        public override bool ValidTarget(NetworkedPlayerInfo target)
+        public override PlayerControl FindClosestTarget()
         {
-            return base.ValidTarget(target) && SafeToKill.Contains(target);
+            PlayerControl closest = null;
+            float distance = 1.5f;
+            foreach (PlayerControl playerControl in PlayerControl.AllPlayerControls.FindAll(p => SafeToKill.Contains(p.PlayerId)))
+            {
+                float dis = Vector2.Distance(playerControl.transform.position, Player.transform.position);
+                if (dis < distance)
+                {
+                    distance = dis;
+                    closest = playerControl;
+                }
+            }
+            return closest;
+        }
+        public override bool CanUse(IUsable usable)
+        {
+            return usable.Is(out Ladder _) || usable.Is(out ZiplineConsole _);
         }
         public void StartStun()
         {

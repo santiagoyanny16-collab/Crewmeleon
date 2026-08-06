@@ -46,6 +46,11 @@ namespace Crewmeleon.Roles
 
         public HorizontalGauge Gauge;
 
+
+        public override bool CanUse(IUsable usable)
+        {
+            return usable.Is(out Ladder _) || usable.Is(out ZiplineConsole _);
+        }
         public void Start()
         {
             if (Player == null) return;
@@ -104,13 +109,18 @@ namespace Crewmeleon.Roles
 
                 CanvaBehaviour.OutlineActive = stopedTimer < ChameleonModeSettings.ChameleonSettings.StopOutline.FloatValue || proximityLevel >= ChameleonModeSettings.ChameleonSettings.FoundBar.FloatValue;
 
-                if (CanvaBehaviour.OutlineActive && !wasReveled && !SeekerRole.SafeToKill.Contains(Player.Data))
+                if (CanvaBehaviour.OutlineActive && !SeekerRole.SafeToKill.Contains(Player.PlayerId))
                 {
-                    SeekerRole.SafeToKill.Add(Player.Data);
+                    SeekerRole.SafeToKill.Add(Player.PlayerId);
                 }
-                else if (!CanvaBehaviour.OutlineActive && wasReveled && SeekerRole.SafeToKill.Contains(Player.Data))
+                else if (!CanvaBehaviour.OutlineActive && SeekerRole.SafeToKill.Contains(Player.PlayerId))
                 {
-                    SeekerRole.SafeToKill.Remove(Player.Data);
+                    SeekerRole.SafeToKill.Remove(Player.PlayerId);
+                }
+
+                if (wasReveled && !CanvaBehaviour.OutlineActive)
+                {
+                    Rpc<RpcFixBody>.Instance.Send(Player);
                 }
 
                 wasReveled = CanvaBehaviour.OutlineActive;
@@ -137,9 +147,9 @@ namespace Crewmeleon.Roles
             Player.cosmetics.ToggleNameVisible(true);
             Player.cosmetics.skin.Visible = true;
 
-            if (SeekerRole.SafeToKill.Contains(Player.Data))
+            if (SeekerRole.SafeToKill.Contains(Player.PlayerId))
             {
-                SeekerRole.SafeToKill.Remove(Player.Data);
+                SeekerRole.SafeToKill.Remove(Player.PlayerId);
             }
         }
         public void UpdateStopTimer()

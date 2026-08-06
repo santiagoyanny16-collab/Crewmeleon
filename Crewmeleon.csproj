@@ -38,6 +38,7 @@
     <Compile Include="Patches\PlayerControlPatch.cs" />
     <Compile Include="Roles\ChameleonRole.cs" />
     <Compile Include="Roles\SeekerRole.cs" />
+    <Compile Include="RPC\RpcFixBody.cs" />
     <Compile Include="RPC\RpcSetSeeker.cs" />
     <Compile Include="RPC\RpcSyncBody.cs" />
     <Compile Include="System\Runtime\CompilerServices\RefSafetyRulesAttribute.cs" />

@@ -142,10 +142,6 @@ namespace Crewmeleon.GameMode
                 player.RpcSetRole(RoleTypes.CrewmateGhost, false);
             }
         }
-        public override bool CanUse(IUsable usable, PlayerControl player)
-        {
-            return usable.Is(out Ladder _);
-        }
         public override MapOptions GetMapOptions()
         {
             return new MapOptions

@@ -93,6 +93,10 @@ namespace Crewmeleon.Buttons
                 CanvaPaintBehaviour canvaPaintBehaviour = Player.gameObject.AddComponent<CanvaPaintBehaviour>();
                 canvaPaintBehaviour.Canva = CanvaPaintBehaviour.Instance.Canva;
                 canvaPaintBehaviour.Paint = () => true;
+                canvaPaintBehaviour.Start();
+                canvaPaintBehaviour.Changer.transform.SetParent(Zoom.transform);
+                canvaPaintBehaviour.Changer.transform.localPosition = new Vector3(3.3f, 0, -1);
+                canvaPaintBehaviour.Changer.transform.localScale = Vector3.one * 0.6f;
 
                 GameObject quad = new GameObject("Quad")
                 {
@@ -160,10 +164,6 @@ namespace Crewmeleon.Buttons
                     camera.transform.position = PlayerControl.LocalPlayer.transform.position;
                     camera.orthographicSize = 1.745f / Size;
                     Player.transform.localScale = Vector3.one * Size;
-                    if (canvaPaintBehaviour.cursorPreviewObject != null)
-                    {
-                        canvaPaintBehaviour.cursorPreviewObject.layer = 5;
-                    }
                 };
                 Zoom.gameObject.SetActive(false);
             }

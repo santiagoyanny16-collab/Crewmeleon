@@ -2,10 +2,13 @@
 using FungleAPI.Api;
 using FungleAPI.Attributes;
 using FungleAPI.Components;
+using FungleAPI.Extensions;
+using FungleAPI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,8 +38,10 @@ namespace Crewmeleon.Components
         public bool isPainting;
         public Vector2Int lastPaintedPixel = new Vector2Int(-1, -1);
 
-        public GameObject cursorPreviewObject;
+        public SpriteRenderer cursorPreviewCopy;
         public SpriteRenderer cursorPreviewRenderer;
+
+        public GameObject Changer;
 
         public int brushSize = 5;
 
@@ -44,9 +49,46 @@ namespace Crewmeleon.Components
 
         public void Start()
         {
+            if (cursorPreviewRenderer != null) return;
+
             CreateCursorPreview();
+            cursorPreviewRenderer.gameObject.SetActive(false);
+
+            PluginChanger zoomAd = GameObject.Instantiate(FungleAssets.PluginChangerPrefab, transform);
+            zoomAd.RightButton.SetNewAction(delegate
+            {
+                ChangeBrushSize(1);
+            });
+            zoomAd.LeftButton.SetNewAction(delegate
+            {
+                ChangeBrushSize(-1);
+            });
+            zoomAd.RightButton.transform.localPosition = new Vector3(1.3f, 0, -1);
+            zoomAd.LeftButton.transform.localPosition = new Vector3(-1.3f, 0, -1);
+            SpriteRenderer zoomB = zoomAd.gameObject.AddComponent<SpriteRenderer>();
+            zoomB.sprite = ChameleonAssets.SpectatorBackground;
+            zoomB.drawMode = SpriteDrawMode.Sliced;
+            zoomB.size = new Vector2(5.5f, 3.2f);
+            zoomAd.transform.localPosition = new Vector3(1.5f, 0, -1);
+            zoomAd.transform.rotation = new Quaternion(0, 0, 0.7071f, 0.7071f);
+            zoomAd.Text.Destroy();
+
+            Changer = zoomAd.gameObject;
+
+            zoomAd.Destroy();
+
+            cursorPreviewCopy = new GameObject("BrushCursorPreview")
+            {
+                layer = 5,
+                transform =
+                {
+                    parent = transform,
+                    localPosition = new Vector3(0, 0, -1)
+                }
+            }.AddComponent<SpriteRenderer>();
+            cursorPreviewCopy.sprite = cursorPreviewRenderer.sprite;
+
             ApplyCursorPreviewScale();
-            cursorPreviewObject.SetActive(false);
         }
         public void Update()
         {
@@ -57,9 +99,12 @@ namespace Crewmeleon.Components
                 return;
             }
 
-            if (!CanPaint)
+            bool ac = CanPaint;
+            Changer.SetActive(ac);
+            cursorPreviewCopy.gameObject.SetActive(ac);
+            if (!ac)
             {
-                SetCursorPreviewActive(false);
+                cursorPreviewRenderer.gameObject.SetActive(false);
                 return;
             }
 
@@ -177,15 +222,11 @@ namespace Crewmeleon.Components
         }
         private void CreateCursorPreview()
         {
-            cursorPreviewObject = new GameObject("BrushCursorPreview")
+            cursorPreviewRenderer = new GameObject("BrushCursorPreview")
             {
-                hideFlags = HideFlags.DontSave,
+                layer = 5,
                 transform = { parent = transform }
-            };
-
-            cursorPreviewRenderer = cursorPreviewObject.AddComponent<SpriteRenderer>();
-            cursorPreviewRenderer.sortingLayerID = Canva.Canva.sortingLayerID;
-            cursorPreviewRenderer.sortingOrder = Canva.Canva.sortingOrder + cursorPreviewSortingOrderOffset;
+            }.AddComponent<SpriteRenderer>();
 
             int diameter = cursorPreviewBaseDiameter;
             Texture2D previewTexture = new Texture2D(diameter, diameter, TextureFormat.RGBA32, false)
@@ -218,34 +259,32 @@ namespace Crewmeleon.Components
         {
             float desiredDiameter = brushSize * 2 + 1;
             float scale = desiredDiameter / cursorPreviewBaseDiameter;
-            cursorPreviewObject.transform.localScale = new Vector3(scale, scale, 1f);
+            cursorPreviewRenderer.transform.localScale = new Vector3(scale, scale, 1f);
+            cursorPreviewCopy.transform.localScale = cursorPreviewRenderer.transform.localScale;
         }
         private void UpdateCursorPreview()
         {
+            Vector3 vector3 = Changer.transform.position;
+            vector3.z += -1;
+            cursorPreviewCopy.transform.position = vector3;
+
             Vector2Int? pixel = MouseToPixelCoord(out Vector3 mouseWorld);
 
             if (pixel == null)
             {
-                SetCursorPreviewActive(false);
+                cursorPreviewRenderer.gameObject.SetActive(false);
                 return;
             }
 
-            SetCursorPreviewActive(true);
+            cursorPreviewRenderer.gameObject.SetActive(true);
 
             Color previewColor = ChameleonHelper.BrushColor;
             previewColor.a = cursorPreviewAlpha;
             cursorPreviewRenderer.color = previewColor;
+            cursorPreviewCopy.color = previewColor;
 
             mouseWorld.z = transform.position.z - 0.01f;
-            cursorPreviewObject.transform.position = mouseWorld;
-        }
-        
-        private void SetCursorPreviewActive(bool active)
-        {
-            if (cursorPreviewObject != null && cursorPreviewObject.activeSelf != active)
-            {
-                cursorPreviewObject.SetActive(active);
-            }
+            cursorPreviewRenderer.transform.position = mouseWorld;
         }
     }
 }
