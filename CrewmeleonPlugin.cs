@@ -9,7 +9,7 @@ using HarmonyLib;
 namespace TheOldUs
 {
     [BepInProcess("Among Us.exe")]
-    [BepInPlugin("obit508.crewmeleon", "Crewmeleon", "0.1.1")]
+    [BepInPlugin("obit508.crewmeleon", "Crewmeleon", "0.1.2")]
     [BepInDependency(FungleApiPlugin.ModId)]
     public class CrewmeleonPlugin : BasePlugin, IFungleBasePlugin
     {

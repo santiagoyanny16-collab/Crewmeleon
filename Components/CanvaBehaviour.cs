@@ -95,7 +95,7 @@ namespace Crewmeleon.Components
         {
             Canva.gameObject.SetActive(IsCanvaActive());
 
-            player.MyPhysics.Animations.group.SpriteAnimator.transform.parent.localScale = Canva.gameObject.activeSelf ? Vector3.zero : Vector3.one;
+            player.MyPhysics.Animations.group.SpriteAnimator.transform.parent.localScale = player.Data.RoleType == ChameleonRole ? Vector3.zero : Vector3.one;
 
             if (!Canva.gameObject.activeSelf) return;
 

@@ -1,6 +1,7 @@
 ﻿using Crewmeleon.Components;
 using Crewmeleon.Roles;
 using FungleAPI.Base.Rpc;
+using FungleAPI.Role;
 using FungleAPI.Utilities;
 using Hazel;
 using Il2CppInterop.Generator.Extensions;
@@ -37,6 +38,8 @@ namespace Crewmeleon.RPC
         }
         public override void Handle(PlayerControl innerNetObject, MessageReader messageReader)
         {
+            if (innerNetObject.Data.RoleType != CustomRoleManager.GetRoleType<ChameleonRole>()) return;
+
             CanvaBehaviour canvaBehaviour = innerNetObject.GetComponent<CanvaBehaviour>();
 
             Texture2D texture2D = canvaBehaviour.Canva.sprite.texture;

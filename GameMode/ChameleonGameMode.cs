@@ -42,7 +42,7 @@ namespace Crewmeleon.GameMode
             {
                 return 0;
             }
-            return base.CalculateLightRadius(player, airship);
+            return 50;
         }
         public override void OnGameStart()
         {

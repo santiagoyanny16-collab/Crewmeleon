@@ -1,4 +1,6 @@
-﻿using FungleAPI.Base.Rpc;
+﻿using Crewmeleon.Roles;
+using FungleAPI.Base.Rpc;
+using FungleAPI.Role;
 using Hazel;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,8 @@ namespace Crewmeleon.RPC
         }
         public override void Handle(PlayerControl innerNetObject, MessageReader messageReader)
         {
+            if (innerNetObject.Data.RoleType != CustomRoleManager.GetRoleType<ChameleonRole>()) return;
+
             float x = messageReader.ReadSingle();
             float y = messageReader.ReadSingle();
             bool flip = messageReader.ReadBoolean();

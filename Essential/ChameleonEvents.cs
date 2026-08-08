@@ -3,12 +3,14 @@ using Crewmeleon.Roles;
 using FungleAPI.Event;
 using FungleAPI.Event.Vanilla;
 using FungleAPI.GameModes;
+using FungleAPI.Ship;
 using FungleAPI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Crewmeleon.Essential
 {
@@ -36,6 +38,10 @@ namespace Crewmeleon.Essential
             if (!GameManager.Instance.IsHideAndSeek() && GameModeManager.GetCurrentGameMode() is ChameleonGameMode)
             {
                 ShipStatus.Instance?.BreakEmergencyButton();
+                if (ShipStatus.Instance.GetShipType() == ShipType.MiraHQ)
+                {
+                    GameObject.Find("SurvLogConsole")?.SetActive(false);
+                }
             }
         }
     }

@@ -118,7 +118,7 @@ namespace Crewmeleon.Roles
                     SeekerRole.SafeToKill.Remove(Player.PlayerId);
                 }
 
-                if (wasReveled && !CanvaBehaviour.OutlineActive)
+                if (wasReveled && !CanvaBehaviour.OutlineActive && Player.AmOwner)
                 {
                     Rpc<RpcFixBody>.Instance.Send(Player);
                 }
