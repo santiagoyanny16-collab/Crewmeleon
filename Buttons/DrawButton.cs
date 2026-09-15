@@ -18,7 +18,7 @@ namespace Crewmeleon.Buttons
     {
         public SpriteRenderer PlayerSprite;
         public override ButtonLocation Location => ButtonLocation.BottomLeft;
-        public override Sprite ButtonSprite => null;
+        public override Sprite ButtonSprite => ChameleonAssets.GradientButton;
         public override string OverrideText => ChameleonTranslation.Draw.GetString();
         public override Color32 TextOutlineColor => Color.black;
         public override float Cooldown => 1;
